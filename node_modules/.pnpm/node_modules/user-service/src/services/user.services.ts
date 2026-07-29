@@ -1,101 +1,66 @@
-import db from "../db/database";
-import { v4 as uuid } from "uuid";
+import pool from "../config/database";
 
+export const getAllUsers = async () => {
+    const result = await pool.query(
+        "SELECT * FROM users ORDER BY id"
+    );
 
-export const getAllUsers = () => {
-
-    return db
-        .prepare("SELECT * FROM users")
-        .all();
-
+    return result.rows;
 };
 
+export const getUserById = async (
+    id: string
+) => {
+    const result = await pool.query(
+        "SELECT * FROM users WHERE id = $1",
+        [id]
+    );
 
-export const getUserById = (id: string) => {
-
-    return db
-        .prepare(
-            "SELECT * FROM users WHERE id = ?"
-        )
-        .get(id);
-
+    return result.rows[0];
 };
 
-
-export const createUser = (
+export const createUser = async (
     name: string,
     email: string
 ) => {
+    const result = await pool.query(
+        `
+        INSERT INTO users(name,email)
+        VALUES($1,$2)
+        RETURNING *
+        `,
+        [name, email]
+    );
 
-
-    const result = db
-        .prepare(
-            `
-            INSERT INTO users(name,email)
-            VALUES(?,?)
-            `
-        )
-        .run(
-            name,
-            email
-        );
-
-
-    return {
-        id: result.lastInsertRowid,
-        name,
-        email
-    };
-
+    return result.rows[0];
 };
 
-
-
-export const updateUser = (
+export const updateUser = async (
     id: string,
     name: string,
     email: string
 ) => {
+    const result = await pool.query(
+        `
+        UPDATE users
+        SET name=$1,
+            email=$2
+        WHERE id=$3
+        RETURNING *
+        `,
+        [name, email, id]
+    );
 
-
-    const result = db
-        .prepare(
-            `
-            UPDATE users
-            SET name=?, email=?
-            WHERE id=?
-            `
-        )
-        .run(
-            name,
-            email,
-            id
-        );
-
-
-    if(result.changes === 0){
-        return null;
-    }
-
-
-    return getUserById(id);
-
+    return result.rows[0] || null;
 };
 
-
-
-export const deleteUser = (
+export const deleteUser = async (
     id: string
 ) => {
+    const result = await pool.query(
+        "DELETE FROM users WHERE id=$1",
+        [id]
+    );
 
-
-    const result = db
-        .prepare(
-            "DELETE FROM users WHERE id=?"
-        )
-        .run(id);
-
-
-    return result.changes > 0;
-
+    return result.rowCount! > 0;
 };

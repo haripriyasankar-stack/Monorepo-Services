@@ -1,123 +1,166 @@
 import { Request, Response } from "express";
 import * as userService from "../services/user.services";
 
-
-export const getUsers = (
+export const getUsers = async (
     req: Request,
     res: Response
 ) => {
 
-    const users = userService.getAllUsers();
+    try {
 
-    res.json(users);
+        const users = await userService.getAllUsers();
 
-};
+        res.json(users);
 
+    } catch (error) {
 
-export const getUser = (
-    req: Request,
-    res: Response
-) => {
-
-    const id = String(req.params.id);
-
-    const user = userService.getUserById(id);
-
-    if (!user) {
-
-        return res.status(404).json({
-            message: "User not found"
+        res.status(500).json({
+            message: "Internal Server Error"
         });
 
     }
 
-    res.json(user);
-
 };
 
-
-export const create = (
+export const getUser = async (
     req: Request,
     res: Response
 ) => {
 
-    const { name, email } = req.body;
+    try {
 
+        const id = String(req.params.id);
 
-    if (!name || !email) {
+        const user = await userService.getUserById(id);
 
-        return res.status(400).json({
-            message: "Name and email are required"
+        if (!user) {
+
+            return res.status(404).json({
+                message: "User not found"
+            });
+
+        }
+
+        res.json(user);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Internal Server Error"
         });
 
     }
 
-
-    const user = userService.createUser(
-        name,
-        email
-    );
-
-
-    res.status(201).json(user);
-
 };
 
-
-export const update = (
+export const create = async (
     req: Request,
     res: Response
 ) => {
 
-    const id = String(req.params.id);
+    try {
 
-    const { name, email } = req.body;
+        const { name, email } = req.body;
 
+        if (!name || !email) {
 
-    const user = userService.updateUser(
-        id,
-        name,
-        email
-    );
+            return res.status(400).json({
+                message: "Name and email are required"
+            });
 
+        }
 
-    if (!user) {
+        const user = await userService.createUser(
+            name,
+            email
+        );
 
-        return res.status(404).json({
-            message: "User not found"
+        res.status(201).json(user);
+
+    } catch (error: any) {
+
+        if (error.code === "23505") {
+
+            return res.status(400).json({
+                message: "Email already exists"
+            });
+
+        }
+
+        res.status(500).json({
+            message: "Internal Server Error"
         });
 
     }
 
-
-    res.json(user);
-
 };
 
-
-
-export const remove = (
+export const update = async (
     req: Request,
     res: Response
 ) => {
 
-    const id = String(req.params.id);
+    try {
 
+        const id = String(req.params.id);
 
-    const deleted = userService.deleteUser(id);
+        const { name, email } = req.body;
 
+        const user = await userService.updateUser(
+            id,
+            name,
+            email
+        );
 
-    if (!deleted) {
+        if (!user) {
 
-        return res.status(404).json({
-            message: "User not found"
+            return res.status(404).json({
+                message: "User not found"
+            });
+
+        }
+
+        res.json(user);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Internal Server Error"
         });
 
     }
 
+};
 
-    res.json({
-        message: "User deleted successfully"
-    });
+export const remove = async (
+    req: Request,
+    res: Response
+) => {
+
+    try {
+
+        const id = String(req.params.id);
+
+        const deleted = await userService.deleteUser(id);
+
+        if (!deleted) {
+
+            return res.status(404).json({
+                message: "User not found"
+            });
+
+        }
+
+        res.json({
+            message: "User deleted successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+
+    }
 
 };

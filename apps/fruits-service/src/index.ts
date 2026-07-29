@@ -1,22 +1,18 @@
 import app from "./app";
-import connectDB from "./db/database";
-
+import pool from "./config/database";
 
 const PORT = 3002;
 
+pool.connect()
+    .then((client) => {
 
-connectDB()
-.then(() => {
+        client.release();
 
-    app.listen(PORT, () => {
-        console.log(
-            `Fruit service running on port ${PORT}`
-        );
+        app.listen(PORT, () => {
+            console.log(`Fruit service running on port ${PORT}`);
+        });
+
+    })
+    .catch((error) => {
+        console.error("Database connection failed:", error);
     });
-
-})
-.catch((error)=>{
-
-    console.log(error);
-
-});
