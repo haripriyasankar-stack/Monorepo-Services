@@ -1,4 +1,4 @@
-import { ApolloServer } from "@apollo/server";
+import { ApolloServer } from "@Apollo/server";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
 

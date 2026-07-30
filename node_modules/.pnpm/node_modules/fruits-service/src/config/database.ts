@@ -4,8 +4,8 @@ const pool = new Pool({
     host: "localhost",
     port: 5432,
     user: "postgres",
-    password: "Postgres@27",
-    database: "monorepo-db"
+    password: "Alpha@47",
+    database: "MONOREPO-SERVICES"
 });
 
 pool.connect()
