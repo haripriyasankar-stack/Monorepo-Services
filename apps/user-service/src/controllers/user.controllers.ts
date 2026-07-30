@@ -13,11 +13,10 @@ export const getUsers = async (
         res.json(users);
 
     } catch (error) {
-
+        console.error(error);
         res.status(500).json({
             message: "Internal Server Error"
         });
-
     }
 
 };
@@ -78,16 +77,12 @@ export const create = async (
         res.status(201).json(user);
 
     } catch (error: any) {
+        console.error("====== Create Error =======");
+        console.error(error);
+        console.error(error.stack);
+        console.error(error.message);
 
-        if (error.code === "23505") {
-
-            return res.status(400).json({
-                message: "Email already exists"
-            });
-
-        }
-
-        res.status(500).json({
+        return res.status(500).json({
             message: "Internal Server Error"
         });
 

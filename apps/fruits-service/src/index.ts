@@ -1,6 +1,16 @@
 import app from "./app";
-import pool from "./config/database";
+import pool from "./config/database"; 
+import { expressMiddleware } from "@as-integrations/express5";
+import express from "express";
+import {server} from "./graphql/server";
 
+async function startServer() {
+await server.start();
+app.use(
+    "/graphql",
+    express.json(),
+     expressMiddleware(server)
+);
 const PORT = 3002;
 
 pool.connect()
@@ -16,3 +26,5 @@ pool.connect()
     .catch((error) => {
         console.error("Database connection failed:", error);
     });
+}
+startServer();

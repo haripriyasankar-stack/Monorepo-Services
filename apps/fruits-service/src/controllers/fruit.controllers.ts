@@ -1,12 +1,23 @@
 import { Request, Response } from "express";
 import * as fruitService from "../services/fruit.services";
+import { getUserById } from "../clients/user.client";
 
 export const getFruits = async (
-     req: Request<{id: string}>,
+     req: Request,
     res: Response
 ) => {
 
     const fruits = await fruitService.getAllFruits();
+
+     const result = await Promise.all(
+        fruits.map(async (fruit: any) => {
+            const user = await getUserById(fruit.addedBy);
+            return {
+                ...fruit,
+                user
+        };
+    })
+);
 
     res.json(fruits);
 
@@ -17,17 +28,19 @@ export const getFruit = async (
     res: Response
 ) => {
 
-    const fruit = await fruitService.getFruitById(
-        req.params.id
-    );
-
+    const fruit = await fruitService.getFruitById(req.params.id);
+        
     if (!fruit) {
         return res.status(404).json({
             message: "Fruit not found"
         });
     }
 
-    res.json(fruit);
+    const user = await getUserById(String(fruit.addedBy));
+    res.json({
+        ...fruit,
+        user
+    });
 
 };
 
@@ -35,7 +48,6 @@ export const create = async (
      req: Request,
     res: Response
 ) => {
-    console.log("Request body:",req.body);
 
     const {
         name,
@@ -43,9 +55,11 @@ export const create = async (
         addedBy
     } = req.body;
 
-    if (!name || !color || !addedBy) {
-        return res.status(400).json({
-            message: "Name, color and addedBy are required"
+    const user = await getUserById(String(addedBy));
+
+    if (!user) {
+        return res.status(404).json({
+            message: "user not found"
         });
     }
 
