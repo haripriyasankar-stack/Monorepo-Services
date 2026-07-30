@@ -5,8 +5,8 @@ const pool = new pg_1.Pool({
     host: "localhost",
     port: 5432,
     user: "postgres",
-    password: "Alpha@47",
-    database: "MONOREPO-SERVICES"
+    password: "Postgres@27",
+    database: "monorepo-db"
 });
 pool.connect()
     .then(() => {
